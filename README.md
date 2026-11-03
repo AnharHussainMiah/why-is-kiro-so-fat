@@ -1,6 +1,6 @@
 # Why is Kiro CLI so fat?
 
-This is just a very quick look at the `kiro-cli` binary, which allegedly is written in Rust.
+This is just a very quick look at the `kiro-cli` binary, which is allegedly written in Rust.
 
 First we need to "install" the kiro CLI.
 
@@ -52,7 +52,7 @@ kirocli/
     README
 ```
 
-both `q` and `qchat` are just shell script wrappers that call into the actual binaries, but holy smoked 210MB for a CLI??!
+both `q` and `qchat` are just shell script wrappers that call into the actual binaries, but holy smokes 210MB for a CLI??!
 
 when we check the binary deps:
 
@@ -160,7 +160,7 @@ Binary number: 0b1000010010011011110100000000
 Octal number: 0o1022336400
 ```
 
-also check out the `.text` the actual executable code is 0000000003ee2010, using hex to MB:
+also check out the `.text` the actual executable machine code is 0000000003ee2010, using hex to MB:
 
 ```
 Size: 62.88 MB (65,937,424 bytes)
@@ -172,10 +172,33 @@ Octal number: 0o373420020
 
 That's insane!!!
 
+
+ok hang on lets check the commets in the elf:
+
+```
+readelf -p .comment kiro-cli-chat 
+
+String dump of section '.comment':
+  [     1]  clang version 21.1.0-rc2
+  [    1a]  Linker: LLD 21.1.8 (/checkout/src/llvm-project/llvm 00d23d10dc48c6bb9d57ba96d4a748d85d77d0c7)
+  [    78]  rustc version 1.94.1 (e408947bf 2026-03-25)
+  [    a4]  GCC: (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+```
+
+confirmed it's written in Rust, so why on earth this this machine code so huge?, the embedded ready only `.rodata` and the machine code together make up around 95% of the binary!
+
 hey man we gotta peek at some strings, what on earth is inside this massive fat binary?!
 
-I would avert your eyes if you have a weak consitution, but TL;DR all kinds of interesting stuff, looks like a huge mountain of agenetic system context/skills etc!
+lets dump string:
 
+```
+strings -n 100 -t x kiro-cli-chat < dump.bin
+```
+
+You can read the full dump here [dump.bin](dump.bin) 
+
+I would avert your eyes if you have a weak constitution, but TL;DR all kinds of interesting stuff, looks like a huge mountain of agenetic system context/skills etc!
+here is a sample of the top 100:
 
 ```
 strings -n 100 kiro-cli-chat | sort -u | head -100
@@ -281,4 +304,8 @@ $serde_json::price/configurationwindow/showMessacallHierarchyProcodeActionProvid
 |   (`{2})(?![\s`])(?:[^`]+(?=`)|(?!`{2})`+(?!`))+(`{2})(?!`)  # 2 backticks, followed by at least one non whitespace, non backtick character, followed by (less than 2 backticks, or at least one non backtick character) at least once, followed by exactly 2 backticks
 ```
 
+## TODO: Run through Ghidra
 
+The strings dump is 1.7MB, so it will take a long time to read through all of that, I have seen a lot of Rust dependencies, as well as system prompts.
+
+A decompile could be very interesting, but we'd need to use Ghidra, I did try `Ouroboros` to decompile the Rust binary, but it just blew up!
