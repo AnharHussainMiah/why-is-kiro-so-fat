@@ -192,7 +192,7 @@ hey man we gotta peek at some strings, what on earth is inside this massive fat 
 lets dump string:
 
 ```
-strings -n 100 -t x kiro-cli-chat < dump.bin
+strings -n 100 -t x kiro-cli-chat > dump.bin
 ```
 
 You can read the full dump here [dump.bin](dump.bin) 
