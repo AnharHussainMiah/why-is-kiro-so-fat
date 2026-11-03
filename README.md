@@ -304,8 +304,23 @@ $serde_json::price/configurationwindow/showMessacallHierarchyProcodeActionProvid
 |   (`{2})(?![\s`])(?:[^`]+(?=`)|(?!`{2})`+(?!`))+(`{2})(?!`)  # 2 backticks, followed by at least one non whitespace, non backtick character, followed by (less than 2 backticks, or at least one non backtick character) at least once, followed by exactly 2 backticks
 ```
 
-## TODO: Run through Ghidra
+## ~~TODO: Run through Ghidra~~
 
 The strings dump is 1.7MB, so it will take a long time to read through all of that, I have seen a lot of Rust dependencies, as well as system prompts.
 
-A decompile could be very interesting, but we'd need to use Ghidra, I did try `Ouroboros` to decompile the Rust binary, but it just blew up!
+I was grepping some words, and it was interesting finding this:
+
+```
+cat dump.bin | grep -rn "#[Derive]"
+dump.bin:1449: 635999                         <svg class="denial-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e74c3c"
+dump.bin:1528:595b8e3 @ A!B"C#D$E%F&G'H(I)J*K+L,M-N.O/P0Q1R2S3T4U5V6W7X8Y9Z:[;\<]=^>_?`@aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ{[|\}]~^
+dump.bin:2211:6659091 D D!D#D$D%D&D'D(D*D+D,D-D.D0D1D2D3D4D6D7D8D9D:D;D=D>D?D@DADBDDDEDFDGDHDJDKDLDMDNDODQDRDSDTDUDVDXDYDZD[D\D]D^D`DaDbDcDdDeDgDhDiDjDkDlDmDoDpDqDrDsDtDvDwDxDyDzD{D|D~D
+dump.bin:2524:6732d98 Failed to process meta schemas#internal error: entered unreachable codeno entry found for keyRetrieving external resources is not supported once the registry is populateda Display implementation returned an error unexpectedlydescription() is deprecated; use DisplayErrorgetrandom::fill() failed.UnretrievableurisourcepointerInvalidPercentEncodingInvalidArrayIndexNoSuchAnchoranchorInvalidAnchorInvalidUriUnknownSpecificationspecificationUtf8Errorvalid_up_toerror_lenUrischemeauthorityqueryParseis_referenceerrorResolveEmptyInvalidDigitPosOverflowNegOverflowParseIntErrorResolveErrorInvalidOctetUnexpectedCharInvalidIpv6AddrInvalidBaseOpaqueBaseDefaultRetrieverErrorDefault retriever does not fetch resourceshttps://json-schema.org/draft/2020-12/vocab/corehttps://json-schema.org/draft/2019-09/vocab/corehttps://json-schema.org/draft/2020-12/vocab/applicatorhttps://json-schema.org/draft/2019-09/vocab/applicatorhttps://json-schema.org/draft/2020-12/vocab/unevaluatedhttps://json-schema.org/draft/2020-12/vocab/validationhttps://json-schema.org/draft/2019-09/vocab/validationhttps://json-schema.org/draft/2020-12/vocab/meta-datahttps://json-schema.org/draft/2019-09/vocab/meta-datahttps://json-schema.org/draft/2020-12/vocab/formathttps://json-schema.org/draft/2019-09/vocab/formathttps://json-schema.org/draft/2020-12/vocab/format-annotationhttps://json-schema.org/draft/2020-12/vocab/contenthttps://json-schema.org/draft/2019-09/vocab/contentLazy instance has previously been poisoned
+.git/hooks/update.sample:73:		short_refname=${refname##refs/tags/}
+grep: .git/objects/c1/565654a3103df7f2c840acb5fd4eca1895a926: binary file matches
+grep: .git/objects/24/771123eefb5ea22f85a72dcadc43bf77423111: binary file matches
+grep: .git/objects/db/30d697bf6e2e969664238a1e27128e2ab3df60: binary file matches
+grep: .git/objects/3a/740d8d830be95478b2887e1fce2f9e97c42684: binary file matches
+```
+
+what!! does this mean there are git source controlled objects stuffed inside the binary?
